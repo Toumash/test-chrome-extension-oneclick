@@ -25,7 +25,7 @@ namespace TestChromeExtension
                 File.Delete(Path);
 
             if (Directory.Exists(Path))
-                Directory.Delete(Path,true);
+                Directory.Delete(Path, true);
         }
     }
     class Program
@@ -75,10 +75,11 @@ namespace TestChromeExtension
             };
             try
             {
-                await Process.Start(chromeLocation,
-                  string.Join(" ", options))
-                    .WaitForExitAsync();
-            }catch(Exception e)
+                var process = Process.Start(chromeLocation,
+                  string.Join(" ", options));
+                await process.WaitForExitAsync();
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }

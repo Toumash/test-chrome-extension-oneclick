@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using Microsoft.Extensions.Configuration;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,18 +29,34 @@ namespace TestChromeExtension
                 Directory.Delete(Path, true);
         }
     }
+    class Config
+    {
+        public string Repo { get; set; }
+        public string GithubToken { get; set; }
+        public string StartUrl { get; set; }
+    }
     class Program
     {
         static async Task Main(string[] args)
         {
-            var token = args[0];
-            var startUrl = args[1];
-            var repoUrl = args[2];
+            if (!File.Exists("appsettings.json"))
+                throw new Exception("NO appsettings.json file. Please create one");
+
+            var config = new ConfigurationBuilder()
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+               .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: false)
+               .AddEnvironmentVariables()
+               .AddCommandLine(args)
+               .Build();
+            var token = config.GetValue<string>("GithubToken");
+
+            var startUrl = config.GetValue<string>("StartUrl");
+            var repoUrl = config.GetValue<string>("Repo");
 
             var artifactUrl = await GetArtifactUrl(token, repoUrl);
             using var extensionPath = new DisposableFile(await DownloadArtifact(artifactUrl, token));
             using var tempDir = new DisposableFile(Path.Combine(Path.GetTempPath() + "ext" + DateTime.Now.Ticks));
-            using var tempDir2 = new DisposableFile(Path.Combine(Path.GetTempPath() + "ext" + DateTime.Now.Ticks+"2"));
+            using var tempDir2 = new DisposableFile(Path.Combine(Path.GetTempPath() + "ext" + DateTime.Now.Ticks + "2"));
             Directory.CreateDirectory(tempDir.Path);
             Directory.CreateDirectory(tempDir2.Path);
 
@@ -74,10 +91,11 @@ namespace TestChromeExtension
                 "--disable-zero-browsers-open-for-tests",
                 "--load-extension=" + extensionDir.Path,
                 "--new-window",
-                "--user-data-dir="  + extensionDir.Path
+                "--user-data-dir="  + tempDir2.Path
             };
             try
             {
+                Console.WriteLine($"Starting chrome from path {extensionDir.Path}");
                 var process = Process.Start(chromeLocation,
                   string.Join(" ", options));
                 await process.WaitForExitAsync();

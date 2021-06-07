@@ -89,9 +89,9 @@ namespace TestChromeExtension
                 "--disable-default-apps",
                 "--disable-popup-blocking",
                 "--disable-zero-browsers-open-for-tests",
-                "--load-extension=" + extensionDir.Path,
+                $"--load-extension=\"{extensionDir.Path}\"",
                 "--new-window",
-                "--user-data-dir="  + tempDir2.Path
+                $"--user-data-dir=\"{tempDir2.Path}\""
             };
             try
             {

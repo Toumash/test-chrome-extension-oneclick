@@ -38,8 +38,10 @@ namespace TestChromeExtension
 
             var artifactUrl = await GetArtifactUrl(token, repoUrl);
             using var extensionPath = new DisposableFile(await DownloadArtifact(artifactUrl, token));
-            using var tempDir = new DisposableFile(Path.Combine(Path.GetTempPath() + "testchromeextension" + DateTime.Now.Ticks));
+            using var tempDir = new DisposableFile(Path.Combine(Path.GetTempPath() + "ext" + DateTime.Now.Ticks));
+            using var tempDir2 = new DisposableFile(Path.Combine(Path.GetTempPath() + "ext" + DateTime.Now.Ticks+"2"));
             Directory.CreateDirectory(tempDir.Path);
+            Directory.CreateDirectory(tempDir2.Path);
 
             ZipFile.ExtractToDirectory(extensionPath.Path, tempDir.Path);
             var extensionDir = tempDir;
@@ -70,8 +72,9 @@ namespace TestChromeExtension
                 "--disable-default-apps",
                 "--disable-popup-blocking",
                 "--disable-zero-browsers-open-for-tests",
-                "--load-extension=" + extensionDir
-                // "--user-data-dir=" + tmp
+                "--load-extension=" + extensionDir.Path,
+                "--new-window",
+                "--user-data-dir="  + extensionDir.Path
             };
             try
             {

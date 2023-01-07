@@ -15,3 +15,15 @@ jobs:
           global-json-file: global.json
       - run: dotnet build .\src\TestChromeExtension.csproj
         working-directory: csharp
+      - run: dotnet publish -r win-x64 --self-contained true  -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
+      - name: Zip the release
+        uses: vimtor/action-zip@v1
+        with:
+          files: src/bin/Release/net7.0/win-x64/publish
+          dest: TestChromeExtension.zip
+          recursive: true
+      - name: Upload release .zip
+        uses: actions/upload-artifact@v2
+        with:
+          name: TestChromeExtension.zip
+          path: TestChromeExtension.zip

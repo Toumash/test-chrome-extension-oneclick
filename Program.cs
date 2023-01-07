@@ -115,7 +115,7 @@ namespace TestChromeExtension
         public static async Task<string> GetArtifactUrl(string personalAccessToken, string repoUrl)
         {
             var client = new RestClient($"https://api.github.com/repos/{repoUrl}/actions/artifacts?per_page=10&page=1");
-            var request = new RestRequest(Method.GET);
+            var request = new RestRequest();
             request.AddHeader("Authorization", $"Bearer {personalAccessToken}");
             var response = await client.ExecuteAsync<Root>(request);
             return response.Data.artifacts.First().archive_download_url;
@@ -123,7 +123,7 @@ namespace TestChromeExtension
         public static async Task<string> DownloadArtifact(string url, string personalAccessToken)
         {
             var client = new RestClient(url);
-            var request = new RestRequest(Method.GET);
+            var request = new RestRequest();
             request.AddHeader("Authorization", $"Bearer {personalAccessToken}");
             var file = client.DownloadData(request);
             var filePath = Path.GetTempFileName();

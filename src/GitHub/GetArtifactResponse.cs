@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+// ReSharper disable InconsistentNaming
+// ReSharper disable ClassNeverInstantiated.Global
+
+#nullable disable
 
 namespace TestChromeExtension.GitHub;
 

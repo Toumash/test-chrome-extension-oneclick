@@ -23,11 +23,12 @@ class Program
             .AddEnvironmentVariables()
             .AddCommandLine(args)
             .Build();
-        var cfg = config.Get<Config>();
+        var cfg = config.Get<Config>()!;
 
-        var githubClient = new GitHubApiClient(cfg.GithubToken);
-        var artifactUrl = await githubClient.GetArtifactUrl(cfg.Repo);
-        using var extensionPath = new DisposableFile(await githubClient.DownloadArtifact(artifactUrl));
+        var github = new GitHubApiClient(cfg.GithubToken);
+        var artifactUrl = await github.GetArtifactUrl(cfg.Repo);
+
+        using var extensionPath = new DisposableFile(await github.DownloadArtifact(artifactUrl));
         using var extensionDir = new DisposableFile(Path.Combine(Path.GetTempPath() + "ext" + DateTime.Now.Ticks));
         using var tempDir2 =
             new DisposableFile(Path.Combine(Path.GetTempPath() + "ext" + DateTime.Now.Ticks + "2"));
@@ -49,9 +50,9 @@ class Program
             "--disable-zero-browsers-open-for-tests",
             $"--load-extension=\"{extensionDir.Path}\"",
             "--new-window",
-            // $"--user-data-dir=\"{tempDir2.Path}\""
+            $"--user-data-dir=\"{tempDir2.Path}\""
         };
-        
+
         try
         {
             Console.WriteLine($"Starting chrome from path {extensionDir.Path}");
@@ -62,6 +63,7 @@ class Program
         catch (Exception e)
         {
             Console.WriteLine(e.ToString());
+            throw;
         }
     }
 }

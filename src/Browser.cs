@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using TestChromeExtension.Exceptions;
 
 namespace TestChromeExtension;
 
@@ -8,24 +9,16 @@ class Browser
 {
     public static string GetBrowserExecutableLocation()
     {
-        var suffix = "Google\\Chrome\\Application\\chrome.exe";
-        var prefixes = new[]
+        const string suffix = "Google\\Chrome\\Application\\chrome.exe";
+        var possibleLocations = new[]
         {
             Environment.GetEnvironmentVariable("LOCALAPPDATA"),
             Environment.GetEnvironmentVariable("PROGRAMFILES"),
             Environment.GetEnvironmentVariable("PROGRAMFILES(X86)")
-        }.Where(s => !string.IsNullOrEmpty(s));
-        string chromeLocation = "";
-        foreach (var prefix in prefixes)
-        {
-            var location = Path.Combine(prefix, suffix);
-            if (File.Exists(location))
-            {
-                chromeLocation = location;
-                break;
-            }
-        }
+        }.Where(s => !string.IsNullOrEmpty(s))
+            .Select(s=>Path.Combine(s,suffix));
+        var chromeLocation= possibleLocations.FirstOrDefault(File.Exists);
 
-        return chromeLocation;
+        return chromeLocation ?? throw new BrowserNotFoundException();
     }
 }

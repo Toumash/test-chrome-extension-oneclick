@@ -1,7 +1,0 @@
-{
-  "profiles": {
-    "TestChromeExtension": {
-      "commandName": "Project"
-    }
-  }
-}

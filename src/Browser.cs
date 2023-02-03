@@ -26,9 +26,10 @@ class Browser
 
     public static List<string> GetOptions(Config cfg1, DisposableFile disposableFile, DisposableFile tempDir3)
     {
-        return new List<string>
+        var list = new List<string>();
+        list.AddRange(cfg1.StartUrls.Split(';'));
+        list.AddRange(new []
         {
-            cfg1.StartUrl,
             "--no-first-run",
             "--no-default-browser-check",
             "--disable-translate",
@@ -39,6 +40,7 @@ class Browser
             "--new-window",
             $"--user-data-dir=\"{tempDir3.Path}\"",
             "--system-developer-mode"
-        };
+        });
+        return list;
     }
 }

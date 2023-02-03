@@ -58,16 +58,16 @@ public class GitHubApiClient
         var request = new RestRequest(url);
         var file = _client.DownloadData(request);
         var filePath = Path.GetTempFileName();
-        await File.WriteAllBytesAsync(filePath, file);
+        await File.WriteAllBytesAsync(filePath, file!);
         return filePath;
     }
 }
 
 public class Artifact
 {
-    public DateTime CreatedAt { get; set; }
-    public string Name { get; set; }
-    public string Url { get; set; }
+    public required DateTime CreatedAt { get; init; }
+    public required string Name { get; init; }
+    public required string Url { get; init; }
 
     public override string ToString() => $"{CreatedAt:MM/dd/yyyy HH:mm} {Name}";
 }

@@ -24,7 +24,7 @@ class Browser
         return chromeLocation ?? throw new BrowserNotFoundException();
     }
 
-    public static List<string> GetOptions(Config cfg1, DisposableFile disposableFile, DisposableFile tempDir3)
+    public static List<string> GetOptions(Config cfg1, DisposableFile disposableFile, DisposableFile userDataDir)
     {
         var list = new List<string>();
         list.AddRange(cfg1.StartUrls.Split(';'));
@@ -38,7 +38,7 @@ class Browser
             "--disable-zero-browsers-open-for-tests",
             $"--load-extension=\"{disposableFile.Path}\"",
             "--new-window",
-            $"--user-data-dir=\"{tempDir3.Path}\"",
+            $"--user-data-dir=\"{userDataDir.Path}\"",
             "--system-developer-mode"
         });
         return list;

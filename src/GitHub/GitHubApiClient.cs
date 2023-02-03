@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using RestSharp;
 using RestSharp.Authenticators;
@@ -20,12 +18,33 @@ public class GitHubApiClient
         _client.UseAuthenticator(new JwtAuthenticator(personalAccessToken));
     }
 
+    public async Task<List<Artifact>> GetAvailableArtifacts(string repoUrl)
+    {
+        var request = new RestRequest($"/repos/{repoUrl}/actions/artifacts?per_page=25&page=1");
+        var response = await _client.ExecuteAsync<GetArtifactResponse>(request);
+        response.ThrowIfError();
+
+        if (response.Data == null)
+        {
+            throw new Exception($"Invalid token exception. Response is null. Response Code = {response.StatusCode}");
+        }
+
+        return response.Data.artifacts
+            .Select(a => new Artifact
+            {
+                Url = a.archive_download_url,
+                Name = a.name,
+                CreatedAt = a.created_at
+            })
+            .ToList();
+    }
+
     public async Task<string> GetArtifactUrl(string repoUrl)
     {
         var request = new RestRequest($"/repos/{repoUrl}/actions/artifacts?per_page=10&page=1");
         var response = await _client.ExecuteAsync<GetArtifactResponse>(request);
         response.ThrowIfError();
-        
+
         if (response.Data == null)
         {
             throw new Exception($"Invalid token exception. Response is null. Response Code = {response.StatusCode}");
@@ -42,4 +61,13 @@ public class GitHubApiClient
         await File.WriteAllBytesAsync(filePath, file);
         return filePath;
     }
+}
+
+public class Artifact
+{
+    public DateTime CreatedAt { get; set; }
+    public string Name { get; set; }
+    public string Url { get; set; }
+
+    public override string ToString() => $"{CreatedAt:MM/dd/yyyy HH:mm} {Name}";
 }
